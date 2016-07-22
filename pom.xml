@@ -1,0 +1,158 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<!-- ==================POM项目定义======================== -->
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>io.github.jcharm</groupId>
+	<artifactId>jcharm</artifactId>
+	<packaging>jar</packaging>
+	<version>2.0</version>
+	<name>JCharm Framework</name>
+	<description>基于Java开发的微服务框架</description>
+	<url>http://jcharm.github.io</url>
+	<!-- ====================== POM属性定义 ======================= -->
+	<properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<junit.version>4.12</junit.version>
+	</properties>
+	<!-- ====================== 项目依赖管理 ============================= -->
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<!-- ===================================POM构建================================================ -->
+	<build>
+		<!-- ================================修改POM默认项目结构=================================== -->
+		<sourceDirectory>${project.basedir}/src</sourceDirectory>
+		<testSourceDirectory>${project.basedir}/test-src</testSourceDirectory>
+		<resources>
+			<resource>
+				<directory>${project.basedir}/src</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>${project.basedir}/test-src</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</testResource>
+		</testResources>
+		<!-- ==========================================POM插件配置================================================ -->
+		<plugins>
+			<!-- compiler -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+					<compilerArgs>
+						<arg>-verbose</arg>
+						<arg>-bootclasspath</arg>
+						<arg>${env.JAVA_HOME}/jre/lib/rt.jar</arg>
+						<arg>-parameters</arg>
+					</compilerArgs>
+				</configuration>
+			</plugin>
+			<!-- source -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- jar -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>io.github.jcharm.launch.Application</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<!-- javadoc -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- GPG -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<!-- =====================Licenses========================== -->
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+	<!-- ======================Developers=========================== -->
+	<developers>
+		<developer>
+			<name>JCharm</name>
+			<email>JCharm@aliyun.com</email>
+		</developer>
+	</developers>
+	<!-- ==========================SCM============================== -->
+	<scm>
+		<url>git@github.com:JCharm/JCharm.git</url>
+		<connection>scm:git:git@github.com:JCharm/JCharm.git</connection>
+		<developerConnection>scm:git:git@github.com:JCharm/JCharm.git</developerConnection>
+	</scm>
+	<!-- ========================IssueManagement============================ -->
+	<issueManagement>
+		<system>Github Issue</system>
+		<url>https://github.com/JCharm/JCharm/issues</url>
+	</issueManagement>
+	<!-- =============================distributionManagement================= -->
+	<distributionManagement>
+		<snapshotRepository>
+			<id>oss</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+		</snapshotRepository>
+		<repository>
+			<id>oss</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+	<!-- mvn clean deploy -P release -Dgpg.passphrase=password -->
+</project>
