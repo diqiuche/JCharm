@@ -13,11 +13,11 @@ public final class PageTurn implements Serializable, Cloneable {
 	private static final long serialVersionUID = 1L;
 
 	/** 默认长度. */
-	public static long DEFAULT_LIMIT = 20;
+	public static int DEFAULT_LIMIT = 20;
 
-	private long limit = PageTurn.DEFAULT_LIMIT;
+	private int limit = PageTurn.DEFAULT_LIMIT;
 
-	private long offset = 0;
+	private int offset = 0;
 
 	private String sort = "";
 
@@ -32,7 +32,7 @@ public final class PageTurn implements Serializable, Cloneable {
 	 *
 	 * @param limit 长度
 	 */
-	public PageTurn(final long limit) {
+	public PageTurn(final int limit) {
 		this.limit = limit;
 	}
 
@@ -51,7 +51,7 @@ public final class PageTurn implements Serializable, Cloneable {
 	 * @param limit 长度
 	 * @param offset 起始位置
 	 */
-	public PageTurn(final long limit, final long offset) {
+	public PageTurn(final int limit, final int offset) {
 		this.limit = limit > 0 ? limit : PageTurn.DEFAULT_LIMIT;
 		this.offset = offset < 0 ? 0 : offset;
 	}
@@ -63,7 +63,7 @@ public final class PageTurn implements Serializable, Cloneable {
 	 * @param offset 起始位置
 	 * @param sortColumn 排序列
 	 */
-	public PageTurn(final long limit, final long offset, final String sortColumn) {
+	public PageTurn(final int limit, final int offset, final String sortColumn) {
 		this.limit = limit > 0 ? limit : PageTurn.DEFAULT_LIMIT;
 		this.offset = offset < 0 ? 0 : offset;
 		this.sort = sortColumn;
@@ -117,7 +117,7 @@ public final class PageTurn implements Serializable, Cloneable {
 	 *
 	 * @return long
 	 */
-	public long getOffset() {
+	public int getOffset() {
 		return this.offset;
 	}
 
@@ -129,18 +129,18 @@ public final class PageTurn implements Serializable, Cloneable {
 	/**
 	 * 获取长度.
 	 *
-	 * @return long
+	 * @return int
 	 */
-	public long getLimit() {
+	public int getLimit() {
 		return this.limit;
 	}
 
 	/**
 	 * 设置长度.
 	 *
-	 * @param limit long
+	 * @param limit int
 	 */
-	public void setLimit(final long limit) {
+	public void setLimit(final int limit) {
 		if (limit > 0) {
 			this.limit = limit;
 		}
@@ -149,9 +149,9 @@ public final class PageTurn implements Serializable, Cloneable {
 	/**
 	 * 设置起始位置.
 	 *
-	 * @param offset long
+	 * @param offset int
 	 */
-	public void setOffset(final long offset) {
+	public void setOffset(final int offset) {
 		this.offset = offset < 0 ? 0 : offset;
 	}
 

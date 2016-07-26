@@ -295,12 +295,12 @@ public interface DataSource {
 	 * @param handler CompletionHandler异步IO操作结果的回调接口
 	 * @param entityClass Entity类
 	 * @param keyColumn Entity类字段名
-	 * @param FilterFunction FilterFunction
+	 * @param filterFunction FilterFunction
 	 * @param funcColumn Entity类字段名
 	 * @param filterBuild FilterBuild
 	 * @return Map
 	 */
-	public <T, K extends Serializable, N extends Number> void getMapResult(final CompletionHandler<Map<K, N>, FilterBuild> handler, final Class<T> entityClass, final String keyColumn, final FilterFunction FilterFunction, final String funcColumn, final FilterBuild filterBuild);
+	public <T, K extends Serializable, N extends Number> void getMapResult(final CompletionHandler<Map<K, N>, FilterBuild> handler, final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final FilterBuild filterBuild);
 
 	// ===================================================FIND====================================================================
 

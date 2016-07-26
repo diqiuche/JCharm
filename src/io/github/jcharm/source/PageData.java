@@ -37,6 +37,16 @@ public class PageData<T> implements java.io.Serializable, Iterable<T> {
 	 * @param total 总数
 	 * @param data 数据集合
 	 */
+	public PageData(final int total, final Collection<? extends T> data) {
+		this((long) total, data);
+	}
+
+	/**
+	 * 构造函数.
+	 *
+	 * @param total 总数
+	 * @param data 数据集合
+	 */
 	public PageData(final long total, final Collection<? extends T> data) {
 		this.total = total;
 		this.rows = (Collection<T>) data;
