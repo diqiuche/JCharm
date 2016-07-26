@@ -139,10 +139,10 @@ public final class EntityCache<T> {
 	}
 
 	/**
-	 * Find.
+	 * 根据主键值从缓存中查找数据.
 	 *
-	 * @param id the id
-	 * @return the t
+	 * @param id Serializable
+	 * @return T
 	 */
 	public T find(final Serializable id) {
 		if (id == null) {
@@ -153,7 +153,7 @@ public final class EntityCache<T> {
 	}
 
 	/**
-	 * 根据主键值和SelectColumn从缓存中数据.
+	 * 根据主键值和SelectColumn从缓存中查找数据.
 	 *
 	 * @param selects SelectColumn
 	 * @param id Serializable
