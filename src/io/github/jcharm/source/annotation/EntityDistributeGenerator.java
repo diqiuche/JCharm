@@ -27,7 +27,7 @@ public @interface EntityDistributeGenerator {
 	public long initialValue() default 1;
 
 	/**
-	 * 如果allocationSize的值小于或等于1,则主键不会加上nodeid.
+	 * 如果allocationSize的值小于或等于1, 则主键不会加上nodeid, 即非分布式环境.
 	 *
 	 * @return int
 	 */

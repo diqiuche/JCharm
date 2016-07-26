@@ -96,8 +96,7 @@ public class JDBCPoolSource {
 			@Override
 			public void connectionErrorOccurred(final ConnectionEvent event) {
 				JDBCPoolSource.this.usingCounter.decrementAndGet();
-				if ("08S01".equals(event.getSQLException().getSQLState()))
-				 {
+				if ("08S01".equals(event.getSQLException().getSQLState())) {
 					return; // MySQL特性， 长时间连接没使用会抛出com.mysql.jdbc.exceptions.jdbc4.CommunicationsException
 				}
 				JDBCPoolSource.this.dataSource.logger.log(Level.WARNING, "connectionErronOccurred  [" + event.getSQLException().getSQLState() + "]", event.getSQLException());

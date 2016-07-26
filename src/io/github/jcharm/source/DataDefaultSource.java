@@ -18,7 +18,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -264,7 +263,8 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 	 */
 	static ConnectionPoolDataSource createDataSource(final Properties property) {
 		try {
-			return DataDefaultSource.createDataSource(property.getProperty(DataDefaultSource.JDBC_SOURCE, property.getProperty(DataDefaultSource.JDBC_DRIVER)), property.getProperty(DataDefaultSource.JDBC_URL), property.getProperty(DataDefaultSource.JDBC_USER), property.getProperty(DataDefaultSource.JDBC_PWD));
+			return DataDefaultSource.createDataSource(property.getProperty(DataDefaultSource.JDBC_SOURCE, property.getProperty(DataDefaultSource.JDBC_DRIVER)), property.getProperty(DataDefaultSource.JDBC_URL), property.getProperty(DataDefaultSource.JDBC_USER),
+					property.getProperty(DataDefaultSource.JDBC_PWD));
 		} catch (final Exception ex) {
 			throw new RuntimeException("(" + property + ") have no jdbc parameters", ex);
 		}
