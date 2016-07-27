@@ -17,7 +17,7 @@ import io.github.jcharm.source.annotation.EntityTable;
 public class LoginLogTestEntity {
 
 	@EntityId
-	@EntityDistributeGenerator
+	@EntityDistributeGenerator(allocationSize = 1)
 	private int sessionId;
 
 	private int userId;
