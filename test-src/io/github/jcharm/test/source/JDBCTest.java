@@ -16,6 +16,8 @@ import io.github.jcharm.source.DataSource;
 import io.github.jcharm.source.FilterBuild;
 import io.github.jcharm.source.FilterField;
 import io.github.jcharm.source.FilterRange;
+import io.github.jcharm.source.PageData;
+import io.github.jcharm.source.PageTurn;
 
 /**
  * The Class JDBCTest.
@@ -76,6 +78,20 @@ public class JDBCTest {
 		final LocalDateTime localDateTime = LocalDateTime.of(2016, 7, 27, 11, 14, 28);
 		final LoginLogTestEntity record = this.dataSource.find(LoginLogTestEntity.class, FilterBuild.create("loginTime", localDateTime));
 		System.out.println(record);
+	}
+
+	@Test
+	public void findTestTwo() {
+		final LocalDateTime localDateTime = LocalDateTime.of(2016, 7, 27, 11, 19, 18);
+		final LoginLogTestEntity record = this.dataSource.find(LoginLogTestEntity.class, FilterBuild.create("loginTime", localDateTime), "userId DESC");
+		System.out.println(record);
+	}
+
+	@Test
+	public void queryPage() {
+		PageTurn pageTurn = new PageTurn(5, 10, "loginTime DESC");
+		PageData<LoginLogTestEntity> pageData = this.dataSource.queryPage(LoginLogTestEntity.class, pageTurn, null);
+		System.out.println(pageData);
 	}
 
 }
