@@ -3,6 +3,10 @@
  */
 package io.github.jcharm.source;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.function.Predicate;
 
 /**
@@ -470,6 +474,168 @@ public interface FilterRange<E extends Comparable> extends java.io.Serializable,
 		@Override
 		public String toString() {
 			return "{min:" + this.min + ", max:" + this.max + "}";
+		}
+
+	}
+
+	/**
+	 * LocalDate范围数据过滤.
+	 */
+	public static final class FilterLocalDateRange implements FilterRange<LocalDate> {
+
+		private static final long serialVersionUID = 1L;
+
+		private LocalDate min = LocalDate.MIN;
+
+		private LocalDate max = LocalDate.MAX;
+
+		/**
+		 * 构造函数.
+		 */
+		public FilterLocalDateRange() {
+		}
+
+		/**
+		 * 构造函数.
+		 *
+		 * @param min LocalDate
+		 * @param max LocalDate
+		 */
+		public FilterLocalDateRange(final LocalDate min, final LocalDate max) {
+			if (min != null) {
+				this.min = min;
+			}
+			if (max != null) {
+				this.max = max;
+			}
+		}
+
+		@Override
+		public boolean test(final LocalDate t) {
+			return (t.compareTo(this.min) >= 0) && (t.compareTo(this.max) <= 0);
+		}
+
+		@Override
+		public LocalDate getMin() {
+			return this.min;
+		}
+
+		@Override
+		public LocalDate getMax() {
+			return this.max;
+		}
+
+		@Override
+		public String toString() {
+			return "{min:" + this.min.format(DateTimeFormatter.ISO_LOCAL_DATE) + ", max:" + this.max.format(DateTimeFormatter.ISO_LOCAL_DATE) + "}";
+		}
+
+	}
+
+	/**
+	 * LocalDateTime范围数据过滤.
+	 */
+	public static final class FilterLocalDateTimeRange implements FilterRange<LocalDateTime> {
+
+		private static final long serialVersionUID = 1L;
+
+		private LocalDateTime min = LocalDateTime.MIN;
+
+		private LocalDateTime max = LocalDateTime.MAX;
+
+		/**
+		 * 构造函数.
+		 */
+		public FilterLocalDateTimeRange() {
+		}
+
+		/**
+		 * 构造函数.
+		 *
+		 * @param min LocalDateTime
+		 * @param max LocalDateTime
+		 */
+		public FilterLocalDateTimeRange(final LocalDateTime min, final LocalDateTime max) {
+			if (min != null) {
+				this.min = min;
+			}
+			if (max != null) {
+				this.max = max;
+			}
+		}
+
+		@Override
+		public boolean test(final LocalDateTime t) {
+			return (t.compareTo(this.min) >= 0) && (t.compareTo(this.max) <= 0);
+		}
+
+		@Override
+		public LocalDateTime getMin() {
+			return this.min;
+		}
+
+		@Override
+		public LocalDateTime getMax() {
+			return this.max;
+		}
+
+		@Override
+		public String toString() {
+			return "{min:" + this.min.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + ", max:" + this.max.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + "}";
+		}
+
+	}
+
+	/**
+	 * LocalTime范围数据过滤.
+	 */
+	public static final class FilterLocalTimeRange implements FilterRange<LocalTime> {
+
+		private static final long serialVersionUID = 1L;
+
+		private LocalTime min = LocalTime.MIN;
+
+		private LocalTime max = LocalTime.MAX;
+
+		/**
+		 * 构造函数.
+		 */
+		public FilterLocalTimeRange() {
+		}
+
+		/**
+		 * 构造函数.
+		 *
+		 * @param min LocalTime
+		 * @param max LocalTime
+		 */
+		public FilterLocalTimeRange(final LocalTime min, final LocalTime max) {
+			if (min != null) {
+				this.min = min;
+			}
+			if (max != null) {
+				this.max = max;
+			}
+		}
+
+		@Override
+		public boolean test(final LocalTime t) {
+			return (t.compareTo(this.min) >= 0) && (t.compareTo(this.max) <= 0);
+		}
+
+		@Override
+		public LocalTime getMin() {
+			return this.min;
+		}
+
+		@Override
+		public LocalTime getMax() {
+			return this.max;
+		}
+
+		@Override
+		public String toString() {
+			return "{min:" + this.min.format(DateTimeFormatter.ISO_LOCAL_TIME) + ", max:" + this.max.format(DateTimeFormatter.ISO_LOCAL_TIME) + "}";
 		}
 
 	}

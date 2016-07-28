@@ -6,8 +6,14 @@ package io.github.jcharm.source;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -526,6 +532,12 @@ public final class EntityInfo<T> {
 						o = ((Number) o).doubleValue();
 					} else if (t == byte.class) {
 						o = ((Number) o).byteValue();
+					} else if (t == LocalDateTime.class) {
+						o = ((Timestamp) o).toLocalDateTime();
+					} else if (t == LocalDate.class) {
+						o = ((Date) o).toLocalDate();
+					} else if (t == LocalTime.class) {
+						o = ((Time) o).toLocalTime();
 					}
 				}
 				attr.setFieldValue(obj, o);

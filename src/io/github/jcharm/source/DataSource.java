@@ -234,6 +234,21 @@ public interface DataSource {
 	public <T, K extends Serializable, N extends Number> Map<K, N> getMapResult(final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn);
 
 	/**
+	 * 根据FilterFunction对指定列根据keyColumn进行分组统计查询.
+	 *
+	 * @param <T> Entity类泛型
+	 * @param <K> key类型
+	 * @param <N> value类型
+	 * @param entityClass Entity类
+	 * @param keyColumn Entity类字段名
+	 * @param filterFunction FilterFunction
+	 * @param funcColumn Entity类字段名
+	 * @param orderby 排序字符串
+	 * @return Map
+	 */
+	public <T, K extends Serializable, N extends Number> Map<K, N> getMapResult(final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final String orderby);
+
+	/**
 	 * 根据FilterFunction和FilterBuild对指定列根据keyColumn进行分组统计查询.
 	 *
 	 * @param <T> Entity类泛型
@@ -247,6 +262,22 @@ public interface DataSource {
 	 * @return Map
 	 */
 	public <T, K extends Serializable, N extends Number> Map<K, N> getMapResult(final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final FilterBuild filterBuild);
+
+	/**
+	 * 根据FilterFunction和FilterBuild对指定列根据keyColumn进行分组统计查询.
+	 *
+	 * @param <T> Entity类泛型
+	 * @param <K> key类型
+	 * @param <N> value类型
+	 * @param entityClass Entity类
+	 * @param keyColumn Entity类字段名
+	 * @param filterFunction FilterFunction
+	 * @param funcColumn Entity类字段名
+	 * @param filterBuild FilterBuild
+	 * @param orderby 排序字符串
+	 * @return Map
+	 */
+	public <T, K extends Serializable, N extends Number> Map<K, N> getMapResult(final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final FilterBuild filterBuild, final String orderby);
 
 	/**
 	 * 根据FilterFunction对指定列进行统计查询(异步).
@@ -287,6 +318,22 @@ public interface DataSource {
 	public <T, K extends Serializable, N extends Number> void getMapResult(final CompletionHandler<Map<K, N>, String> handler, final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn);
 
 	/**
+	 * 根据FilterFunction对指定列根据keyColumn进行分组统计查询(异步).
+	 *
+	 * @param <T> Entity类泛型
+	 * @param <K> key类型
+	 * @param <N> value类型
+	 * @param handler CompletionHandler异步IO操作结果的回调接口
+	 * @param entityClass Entity类
+	 * @param keyColumn Entity类字段名
+	 * @param filterFunction FilterFunction
+	 * @param funcColumn Entity类字段名
+	 * @param orderby 排序字符串
+	 * @return Map
+	 */
+	public <T, K extends Serializable, N extends Number> void getMapResult(final CompletionHandler<Map<K, N>, String> handler, final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final String orderby);
+
+	/**
 	 * 根据FilterFunction和FilterBuild对指定列根据keyColumn进行分组统计查询(异步).
 	 *
 	 * @param <T> Entity类泛型
@@ -302,6 +349,23 @@ public interface DataSource {
 	 */
 	public <T, K extends Serializable, N extends Number> void getMapResult(final CompletionHandler<Map<K, N>, FilterBuild> handler, final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final FilterBuild filterBuild);
 
+	/**
+	 * 根据FilterFunction和FilterBuild对指定列根据keyColumn进行分组统计查询(异步).
+	 *
+	 * @param <T> Entity类泛型
+	 * @param <K> key类型
+	 * @param <N> value类型
+	 * @param handler CompletionHandler异步IO操作结果的回调接口
+	 * @param entityClass Entity类
+	 * @param keyColumn Entity类字段名
+	 * @param filterFunction the filter function
+	 * @param funcColumn Entity类字段名
+	 * @param filterBuild FilterBuild
+	 * @param orderby 排序字符串
+	 * @return Map
+	 */
+	public <T, K extends Serializable, N extends Number> void getMapResult(final CompletionHandler<Map<K, N>, FilterBuild> handler, final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final FilterBuild filterBuild, final String orderby);
+
 	// ===================================================FIND====================================================================
 
 	/**
@@ -315,6 +379,17 @@ public interface DataSource {
 	public <T> T find(final Class<T> clazz, final Serializable pk);
 
 	/**
+	 * 根据主键值获取数据.
+	 *
+	 * @param <T> 泛型
+	 * @param clazz Entity类
+	 * @param pk 主键值
+	 * @param orderby 排序字符串
+	 * @return Entity对象
+	 */
+	public <T> T find(final Class<T> clazz, final Serializable pk, final String orderby);
+
+	/**
 	 * 根据主键值结合SelectColumn获取数据.
 	 *
 	 * @param <T> 泛型
@@ -324,6 +399,18 @@ public interface DataSource {
 	 * @return Entity对象
 	 */
 	public <T> T find(final Class<T> clazz, final SelectColumn selects, final Serializable pk);
+
+	/**
+	 * 根据主键值结合SelectColumn获取数据.
+	 *
+	 * @param <T> 泛型
+	 * @param clazz Entity类
+	 * @param selects SelectColumn
+	 * @param pk 主键值
+	 * @param orderby 排序字符串
+	 * @return Entity对象
+	 */
+	public <T> T find(final Class<T> clazz, final SelectColumn selects, final Serializable pk, final String orderby);
 
 	/**
 	 * 根据列名及列值获取数据.
@@ -337,6 +424,18 @@ public interface DataSource {
 	public <T> T find(final Class<T> clazz, final String column, final Serializable key);
 
 	/**
+	 * 根据列名及列值获取数据.
+	 *
+	 * @param <T> 泛型
+	 * @param clazz Entity类
+	 * @param column Entity类字段名
+	 * @param key Entity类字段值
+	 * @param orderby 排序字符串
+	 * @return Entity对象
+	 */
+	public <T> T find(final Class<T> clazz, final String column, final Serializable key, final String orderby);
+
+	/**
 	 * 根据FilterBuild获取数据.
 	 *
 	 * @param <T> 泛型
@@ -345,6 +444,17 @@ public interface DataSource {
 	 * @return Entity对象
 	 */
 	public <T> T find(final Class<T> clazz, final FilterBuild filterBuild);
+
+	/**
+	 * 根据FilterBuild获取数据.
+	 *
+	 * @param <T> 泛型
+	 * @param clazz Entity类
+	 * @param filterBuild FilterBuild
+	 * @param orderby 排序字符串
+	 * @return Entity对象
+	 */
+	public <T> T find(final Class<T> clazz, final FilterBuild filterBuild, final String orderby);
 
 	/**
 	 * 根据FilterBuild和SelectColumn获取数据.
@@ -356,6 +466,18 @@ public interface DataSource {
 	 * @return Entity对象
 	 */
 	public <T> T find(final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild);
+
+	/**
+	 * 根据FilterBuild和SelectColumn获取数据.
+	 *
+	 * @param <T> 泛型
+	 * @param clazz Entity类
+	 * @param selects SelectColumn
+	 * @param filterBuild FilterBuild
+	 * @param orderby 排序字符串
+	 * @return Entity对象
+	 */
+	public <T> T find(final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild, final String orderby);
 
 	/**
 	 * 指定主键值的数据是否存在.
@@ -388,6 +510,17 @@ public interface DataSource {
 	public <T> void find(final CompletionHandler<T, Serializable> handler, final Class<T> clazz, final Serializable pk);
 
 	/**
+	 * 根据主键值获取数据(异步).
+	 *
+	 * @param <T> 泛型
+	 * @param handler CompletionHandler异步IO操作结果的回调接口
+	 * @param clazz Entity类
+	 * @param pk 主键值
+	 * @param orderby 排序字符串
+	 */
+	public <T> void find(final CompletionHandler<T, Serializable> handler, final Class<T> clazz, final Serializable pk, final String orderby);
+
+	/**
 	 * 根据主键值结合SelectColumn获取数据(异步).
 	 *
 	 * @param <T> 泛型
@@ -397,6 +530,18 @@ public interface DataSource {
 	 * @param pk 主键值
 	 */
 	public <T> void find(final CompletionHandler<T, Serializable> handler, final Class<T> clazz, final SelectColumn selects, final Serializable pk);
+
+	/**
+	 * 根据主键值结合SelectColumn获取数据(异步).
+	 *
+	 * @param <T> 泛型
+	 * @param handler CompletionHandler异步IO操作结果的回调接口
+	 * @param clazz Entity类
+	 * @param selects SelectColumn
+	 * @param pk 主键值
+	 * @param orderby 排序字符串
+	 */
+	public <T> void find(final CompletionHandler<T, Serializable> handler, final Class<T> clazz, final SelectColumn selects, final Serializable pk, final String orderby);
 
 	/**
 	 * 根据列名及列值获取数据(异步).
@@ -410,6 +555,18 @@ public interface DataSource {
 	public <T> void find(final CompletionHandler<T, Serializable> handler, final Class<T> clazz, final String column, final Serializable key);
 
 	/**
+	 * 根据列名及列值获取数据(异步).
+	 *
+	 * @param <T> 泛型
+	 * @param handler CompletionHandler异步IO操作结果的回调接口
+	 * @param clazz Entity类
+	 * @param column Entity类字段名
+	 * @param key Entity类字段值
+	 * @param orderby 排序字符串
+	 */
+	public <T> void find(final CompletionHandler<T, Serializable> handler, final Class<T> clazz, final String column, final Serializable key, final String orderby);
+
+	/**
 	 * 根据FilterBuild获取数据(异步).
 	 *
 	 * @param <T> 泛型
@@ -418,6 +575,17 @@ public interface DataSource {
 	 * @param filterBuild FilterBuild
 	 */
 	public <T> void find(final CompletionHandler<T, FilterBuild> handler, final Class<T> clazz, final FilterBuild filterBuild);
+
+	/**
+	 * 根据FilterBuild获取数据(异步).
+	 *
+	 * @param <T> 泛型
+	 * @param handler CompletionHandler异步IO操作结果的回调接口
+	 * @param clazz Entity类
+	 * @param filterBuild FilterBuild
+	 * @param orderby 排序字符串
+	 */
+	public <T> void find(final CompletionHandler<T, FilterBuild> handler, final Class<T> clazz, final FilterBuild filterBuild, final String orderby);
 
 	/**
 	 * 根据FilterBuild和SelectColumn获取数据(异步).
@@ -429,6 +597,18 @@ public interface DataSource {
 	 * @param filterBuild FilterBuild
 	 */
 	public <T> void find(final CompletionHandler<T, FilterBuild> handler, final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild);
+
+	/**
+	 * 根据FilterBuild和SelectColumn获取数据(异步).
+	 *
+	 * @param <T> 泛型
+	 * @param handler CompletionHandler异步IO操作结果的回调接口
+	 * @param clazz Entity类
+	 * @param selects SelectColumn
+	 * @param filterBuild FilterBuild
+	 * @param orderby 排序字符串
+	 */
+	public <T> void find(final CompletionHandler<T, FilterBuild> handler, final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild, final String orderby);
 
 	/**
 	 * 指定主键值的数据是否存在(异步).
@@ -466,6 +646,20 @@ public interface DataSource {
 	public <T, V extends Serializable> List<V> queryColumnList(final String selectedColumn, final Class<T> clazz, final String column, final Serializable key);
 
 	/**
+	 * 根据指定列和值获取某个列的集合.
+	 *
+	 * @param <T> Entity泛型
+	 * @param <V> 字段类型
+	 * @param selectedColumn Entity类的字段名
+	 * @param clazz Entity类
+	 * @param column Entity类的字段名
+	 * @param key Entity类的字段值
+	 * @param orderby 排序字符串
+	 * @return List
+	 */
+	public <T, V extends Serializable> List<V> queryColumnList(final String selectedColumn, final Class<T> clazz, final String column, final Serializable key, final String orderby);
+
+	/**
 	 * 根据FilterBuild获取某个列的集合.
 	 *
 	 * @param <T> Entity泛型
@@ -476,6 +670,19 @@ public interface DataSource {
 	 * @return List
 	 */
 	public <T, V extends Serializable> List<V> queryColumnList(final String selectedColumn, final Class<T> clazz, final FilterBuild filterBuild);
+
+	/**
+	 * 根据FilterBuild获取某个列的集合.
+	 *
+	 * @param <T> Entity泛型
+	 * @param <V> 字段的数据类型
+	 * @param selectedColumn Entity类的字段名
+	 * @param clazz Entity类
+	 * @param filterBuild FilterBuild
+	 * @param orderby 排序字符串
+	 * @return List
+	 */
+	public <T, V extends Serializable> List<V> queryColumnList(final String selectedColumn, final Class<T> clazz, final FilterBuild filterBuild, final String orderby);
 
 	/**
 	 * 根据指定列和值获取某个列的集合(异步).
@@ -491,6 +698,20 @@ public interface DataSource {
 	public <T, V extends Serializable> void queryColumnList(final CompletionHandler<List<V>, Serializable> handler, final String selectedColumn, final Class<T> clazz, final String column, final Serializable key);
 
 	/**
+	 * 根据指定列和值获取某个列的集合(异步).
+	 *
+	 * @param <T> Entity泛型
+	 * @param <V> 字段数据类型
+	 * @param handler CompletionHandler异步IO操作结果的回调接口
+	 * @param selectedColumn Entity类的字段名
+	 * @param clazz Entity类
+	 * @param column Entity类的字段名
+	 * @param key Entity类的字段值
+	 * @param orderby 排序字符串
+	 */
+	public <T, V extends Serializable> void queryColumnList(final CompletionHandler<List<V>, Serializable> handler, final String selectedColumn, final Class<T> clazz, final String column, final Serializable key, final String orderby);
+
+	/**
 	 * 根据FilterBuild获取某个列的集合(异步).
 	 *
 	 * @param <T> Entity泛型
@@ -501,6 +722,19 @@ public interface DataSource {
 	 * @param filterBuild FilterBuild
 	 */
 	public <T, V extends Serializable> void queryColumnList(final CompletionHandler<List<V>, FilterBuild> handler, final String selectedColumn, final Class<T> clazz, final FilterBuild filterBuild);
+
+	/**
+	 * 根据FilterBuild获取某个列的集合(异步).
+	 *
+	 * @param <T> Entity泛型
+	 * @param <V> 字段数据类型
+	 * @param handler CompletionHandler异步IO操作结果的回调接口
+	 * @param selectedColumn Entity类的字段名
+	 * @param clazz the Entity类
+	 * @param filterBuild FilterBuild
+	 * @param orderby 排序字符串
+	 */
+	public <T, V extends Serializable> void queryColumnList(final CompletionHandler<List<V>, FilterBuild> handler, final String selectedColumn, final Class<T> clazz, final FilterBuild filterBuild, final String orderby);
 
 	// ===================================================Page Column====================================================================
 
@@ -544,6 +778,18 @@ public interface DataSource {
 	public <T> List<T> queryList(final Class<T> clazz, final String column, final Serializable key);
 
 	/**
+	 * 根据指定列和值获取数据集合.
+	 *
+	 * @param <T> Entity泛型
+	 * @param clazz Entity类
+	 * @param column Entity类字段名
+	 * @param key Entity类字段值
+	 * @param orderby 排序字符串
+	 * @return List
+	 */
+	public <T> List<T> queryList(final Class<T> clazz, final String column, final Serializable key, final String orderby);
+
+	/**
 	 * 根据FilterBuild获取数据集合.
 	 *
 	 * @param <T> Entity泛型
@@ -552,6 +798,17 @@ public interface DataSource {
 	 * @return List
 	 */
 	public <T> List<T> queryList(final Class<T> clazz, final FilterBuild filterBuild);
+
+	/**
+	 * 根据FilterBuild获取数据集合.
+	 *
+	 * @param <T> Entity泛型
+	 * @param clazz Entity类
+	 * @param filterBuild FilterBuild
+	 * @param orderby 排序字符串
+	 * @return List
+	 */
+	public <T> List<T> queryList(final Class<T> clazz, final FilterBuild filterBuild, final String orderby);
 
 	/**
 	 * 根据FilterBuild和SelectColumn获取数据集合.
@@ -565,6 +822,18 @@ public interface DataSource {
 	public <T> List<T> queryList(final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild);
 
 	/**
+	 * 根据FilterBuild和SelectColumn获取数据集合.
+	 *
+	 * @param <T> Entity泛型
+	 * @param clazz Entity类
+	 * @param selects SelectColumn
+	 * @param filterBuild FilterBuild
+	 * @param orderby 排序字符串
+	 * @return List
+	 */
+	public <T> List<T> queryList(final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild, final String orderby);
+
+	/**
 	 * 根据指定列和值获取数据集合(异步).
 	 *
 	 * @param <T> Entity泛型
@@ -574,6 +843,18 @@ public interface DataSource {
 	 * @param key Entity类字段值
 	 */
 	public <T> void queryList(final CompletionHandler<List<T>, Serializable> handler, final Class<T> clazz, final String column, final Serializable key);
+
+	/**
+	 * 根据指定列和值获取数据集合(异步).
+	 *
+	 * @param <T> Entity泛型
+	 * @param handler CompletionHandler异步IO操作结果的回调接口
+	 * @param clazz Entity类
+	 * @param column Entity类字段名
+	 * @param key Entity类字段值
+	 * @param orderby 排序字符串
+	 */
+	public <T> void queryList(final CompletionHandler<List<T>, Serializable> handler, final Class<T> clazz, final String column, final Serializable key, final String orderby);
 
 	/**
 	 * 根据FilterBuild获取数据集合(异步).
@@ -586,6 +867,17 @@ public interface DataSource {
 	public <T> void queryList(final CompletionHandler<List<T>, FilterBuild> handler, final Class<T> clazz, final FilterBuild filterBuild);
 
 	/**
+	 * 根据FilterBuild获取数据集合(异步).
+	 *
+	 * @param <T> Entity泛型
+	 * @param handler CompletionHandler异步IO操作结果的回调接口
+	 * @param clazz Entity类
+	 * @param filterBuild FilterBuild
+	 * @param orderby 排序字符串
+	 */
+	public <T> void queryList(final CompletionHandler<List<T>, FilterBuild> handler, final Class<T> clazz, final FilterBuild filterBuild, final String orderby);
+
+	/**
 	 * 根据FilterBuild和SelectColumn获取数据集合(异步).
 	 *
 	 * @param <T> Entity泛型
@@ -595,6 +887,18 @@ public interface DataSource {
 	 * @param filterBuild FilterBuild
 	 */
 	public <T> void queryList(final CompletionHandler<List<T>, FilterBuild> handler, final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild);
+
+	/**
+	 * 根据FilterBuild和SelectColumn获取数据集合(异步).
+	 *
+	 * @param <T> Entity泛型
+	 * @param handler CompletionHandler异步IO操作结果的回调接口
+	 * @param clazz Entity类
+	 * @param selects SelectColumn
+	 * @param filterBuild FilterBuild
+	 * @param orderby 排序字符串
+	 */
+	public <T> void queryList(final CompletionHandler<List<T>, FilterBuild> handler, final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild, final String orderby);
 
 	// ===================================================Page====================================================================
 

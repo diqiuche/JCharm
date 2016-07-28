@@ -1187,6 +1187,11 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 	}
 
 	@Override
+	public <T, K extends Serializable, N extends Number> Map<K, N> getMapResult(final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final String orderby) {
+		return this.getMapResult(entityClass, keyColumn, filterFunction, funcColumn, (FilterBuild) null, orderby);
+	}
+
+	@Override
 	public <T, K extends Serializable, N extends Number> Map<K, N> getMapResult(final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final FilterBuild filterBuild) {
 		final Connection conn = this.createReadSQLConnection();
 		try {
@@ -1203,6 +1208,48 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 			final CharSequence where = filterBuild == null ? null : filterBuild.createSQLExpress(info, joinTabalis);
 			final String sql = "SELECT a." + sqlkey + ", " + filterFunction.getColumn(((funcColumn == null) || funcColumn.isEmpty() ? "*" : ("a." + funcColumn))) + " FROM " + info.getTable() + " a" + (join == null ? "" : join) + (((where == null) || (where.length() == 0)) ? "" : (" WHERE " + where))
 					+ " GROUP BY a." + sqlkey;
+			if (this.debug.get()) {
+				this.logger.fine(entityClass.getSimpleName() + " single sql=" + sql);
+			}
+			final PreparedStatement prestmt = conn.prepareStatement(sql);
+			final Map<K, N> rs = new LinkedHashMap<>();
+			final ResultSet set = prestmt.executeQuery();
+			final ResultSetMetaData rsd = set.getMetaData();
+			final boolean smallint = rsd.getColumnType(1) == Types.SMALLINT;
+			while (set.next()) {
+				rs.put((K) (smallint ? set.getShort(1) : set.getObject(1)), (N) set.getObject(2));
+			}
+			set.close();
+			prestmt.close();
+			return rs;
+		} catch (final SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			if (conn != null) {
+				this.closeSQLConnection(conn);
+			}
+		}
+	}
+
+	@Override
+	public <T, K extends Serializable, N extends Number> Map<K, N> getMapResult(final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final FilterBuild filterBuild, final String orderby) {
+		PageTurn pageTurn = new PageTurn(Integer.MAX_VALUE);
+		pageTurn.setSort(orderby);
+		final Connection conn = this.createReadSQLConnection();
+		try {
+			final EntityInfo info = this.loadEntityInfo(entityClass);
+			final EntityCache cache = info.getCache();
+			if ((cache != null) && (info.isVirtualEntity() || cache.isFullLoaded())) {
+				if ((filterBuild == null) || filterBuild.isCacheUseable(this)) {
+					return cache.getMapResult(keyColumn, filterFunction, funcColumn, filterBuild);
+				}
+			}
+			final String sqlkey = info.getSQLColumn(null, keyColumn);
+			final Map<Class, String> joinTabalis = filterBuild == null ? null : filterBuild.getJoinTabalis();
+			final CharSequence join = filterBuild == null ? null : filterBuild.createSQLJoin(this, joinTabalis, info);
+			final CharSequence where = filterBuild == null ? null : filterBuild.createSQLExpress(info, joinTabalis);
+			final String sql = "SELECT a." + sqlkey + ", " + filterFunction.getColumn(((funcColumn == null) || funcColumn.isEmpty() ? "*" : ("a." + funcColumn))) + " FROM " + info.getTable() + " a" + (join == null ? "" : join) + (((where == null) || (where.length() == 0)) ? "" : (" WHERE " + where))
+					+ " GROUP BY a." + sqlkey + info.createSQLOrderby(pageTurn);
 			if (this.debug.get()) {
 				this.logger.fine(entityClass.getSimpleName() + " single sql=" + sql);
 			}
@@ -1252,6 +1299,14 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 	}
 
 	@Override
+	public <T, K extends Serializable, N extends Number> void getMapResult(final CompletionHandler<Map<K, N>, String> handler, final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final String orderby) {
+		final Map<K, N> map = this.getMapResult(entityClass, keyColumn, filterFunction, funcColumn, orderby);
+		if (handler != null) {
+			handler.completed(map, funcColumn);
+		}
+	}
+
+	@Override
 	public <T, K extends Serializable, N extends Number> void getMapResult(final CompletionHandler<Map<K, N>, FilterBuild> handler, final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final FilterBuild filterBuild) {
 		final Map<K, N> map = this.getMapResult(entityClass, keyColumn, filterFunction, funcColumn, filterBuild);
 		if (handler != null) {
@@ -1260,8 +1315,21 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 	}
 
 	@Override
+	public <T, K extends Serializable, N extends Number> void getMapResult(final CompletionHandler<Map<K, N>, FilterBuild> handler, final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final FilterBuild filterBuild, final String orderby) {
+		final Map<K, N> map = this.getMapResult(entityClass, keyColumn, filterFunction, funcColumn, filterBuild, orderby);
+		if (handler != null) {
+			handler.completed(map, filterBuild);
+		}
+	}
+
+	@Override
 	public <T> T find(final Class<T> clazz, final Serializable pk) {
 		return this.find(clazz, (SelectColumn) null, pk);
+	}
+
+	@Override
+	public <T> T find(final Class<T> clazz, final Serializable pk, final String orderby) {
+		return this.find(clazz, (SelectColumn) null, pk, orderby);
 	}
 
 	@Override
@@ -1295,13 +1363,55 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 	}
 
 	@Override
+	public <T> T find(final Class<T> clazz, final SelectColumn selects, final Serializable pk, final String orderby) {
+		final PageTurn pageTurn = new PageTurn(Integer.MAX_VALUE);
+		pageTurn.setSort(orderby);
+		final EntityInfo<T> info = this.loadEntityInfo(clazz);
+		final EntityCache<T> cache = info.getCache();
+		if (cache != null) {
+			final T rs = cache.find(selects, pk);
+			if (cache.isFullLoaded() || (rs != null)) {
+				return rs;
+			}
+		}
+		final Connection conn = this.createReadSQLConnection();
+		try {
+			final SelectColumn sels = selects;
+			final String sql = "SELECT * FROM " + info.getTable() + " WHERE " + info.getPrimarySQLColumn() + " = " + FilterBuild.formatToString(pk) + info.createSQLOrderby(pageTurn);
+			if (this.debug.get()) {
+				this.logger.fine(clazz.getSimpleName() + " find sql=" + sql);
+			}
+			final PreparedStatement ps = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			final ResultSet set = ps.executeQuery();
+			final T rs = set.next() ? info.getValue(sels, set) : null;
+			set.close();
+			ps.close();
+			return rs;
+		} catch (final Exception ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			this.closeSQLConnection(conn);
+		}
+	}
+
+	@Override
 	public <T> T find(final Class<T> clazz, final String column, final Serializable key) {
 		return this.find(clazz, null, FilterBuild.create(column, key));
 	}
 
 	@Override
+	public <T> T find(final Class<T> clazz, final String column, final Serializable key, final String orderby) {
+		return this.find(clazz, null, FilterBuild.create(column, key), orderby);
+	}
+
+	@Override
 	public <T> T find(final Class<T> clazz, final FilterBuild filterBuild) {
 		return this.find(clazz, null, filterBuild);
+	}
+
+	@Override
+	public <T> T find(final Class<T> clazz, final FilterBuild filterBuild, final String orderby) {
+		return this.find(clazz, null, filterBuild, orderby);
 	}
 
 	@Override
@@ -1318,6 +1428,38 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 			final CharSequence join = filterBuild == null ? null : filterBuild.createSQLJoin(this, joinTabalis, info);
 			final CharSequence where = filterBuild == null ? null : filterBuild.createSQLExpress(info, joinTabalis);
 			final String sql = "SELECT a.* FROM " + info.getTable() + " a" + (join == null ? "" : join) + (((where == null) || (where.length() == 0)) ? "" : (" WHERE " + where));
+			if (this.debug.get()) {
+				this.logger.fine(clazz.getSimpleName() + " find sql=" + sql);
+			}
+			final PreparedStatement ps = conn.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			final ResultSet set = ps.executeQuery();
+			final T rs = set.next() ? info.getValue(sels, set) : null;
+			set.close();
+			ps.close();
+			return rs;
+		} catch (final Exception ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			this.closeSQLConnection(conn);
+		}
+	}
+
+	@Override
+	public <T> T find(final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild, final String orderby) {
+		final PageTurn pageTurn = new PageTurn(Integer.MAX_VALUE);
+		pageTurn.setSort(orderby);
+		final EntityInfo<T> info = this.loadEntityInfo(clazz);
+		final EntityCache<T> cache = info.getCache();
+		if ((cache != null) && cache.isFullLoaded() && ((filterBuild == null) || filterBuild.isCacheUseable(this))) {
+			return cache.find(selects, filterBuild);
+		}
+		final Connection conn = this.createReadSQLConnection();
+		try {
+			final SelectColumn sels = selects;
+			final Map<Class, String> joinTabalis = filterBuild == null ? null : filterBuild.getJoinTabalis();
+			final CharSequence join = filterBuild == null ? null : filterBuild.createSQLJoin(this, joinTabalis, info);
+			final CharSequence where = filterBuild == null ? null : filterBuild.createSQLExpress(info, joinTabalis);
+			final String sql = "SELECT a.* FROM " + info.getTable() + " a" + (join == null ? "" : join) + (((where == null) || (where.length() == 0)) ? "" : (" WHERE " + where)) + info.createSQLOrderby(pageTurn);
 			if (this.debug.get()) {
 				this.logger.fine(clazz.getSimpleName() + " find sql=" + sql);
 			}
@@ -1401,8 +1543,24 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 	}
 
 	@Override
+	public <T> void find(final CompletionHandler<T, Serializable> handler, final Class<T> clazz, final Serializable pk, final String orderby) {
+		final T rs = this.find(clazz, pk, orderby);
+		if (handler != null) {
+			handler.completed(rs, pk);
+		}
+	}
+
+	@Override
 	public <T> void find(final CompletionHandler<T, Serializable> handler, final Class<T> clazz, final SelectColumn selects, final Serializable pk) {
 		final T rs = this.find(clazz, selects, pk);
+		if (handler != null) {
+			handler.completed(rs, pk);
+		}
+	}
+
+	@Override
+	public <T> void find(final CompletionHandler<T, Serializable> handler, final Class<T> clazz, final SelectColumn selects, final Serializable pk, final String orderby) {
+		final T rs = this.find(clazz, selects, pk, orderby);
 		if (handler != null) {
 			handler.completed(rs, pk);
 		}
@@ -1417,6 +1575,14 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 	}
 
 	@Override
+	public <T> void find(final CompletionHandler<T, Serializable> handler, final Class<T> clazz, final String column, final Serializable key, final String orderby) {
+		final T rs = this.find(clazz, column, key, orderby);
+		if (handler != null) {
+			handler.completed(rs, key);
+		}
+	}
+
+	@Override
 	public <T> void find(final CompletionHandler<T, FilterBuild> handler, final Class<T> clazz, final FilterBuild filterBuild) {
 		final T rs = this.find(clazz, filterBuild);
 		if (handler != null) {
@@ -1425,8 +1591,24 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 	}
 
 	@Override
+	public <T> void find(final CompletionHandler<T, FilterBuild> handler, final Class<T> clazz, final FilterBuild filterBuild, final String orderby) {
+		final T rs = this.find(clazz, filterBuild, orderby);
+		if (handler != null) {
+			handler.completed(rs, filterBuild);
+		}
+	}
+
+	@Override
 	public <T> void find(final CompletionHandler<T, FilterBuild> handler, final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild) {
 		final T rs = this.find(clazz, selects, filterBuild);
+		if (handler != null) {
+			handler.completed(rs, filterBuild);
+		}
+	}
+
+	@Override
+	public <T> void find(final CompletionHandler<T, FilterBuild> handler, final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild, final String orderby) {
+		final T rs = this.find(clazz, selects, filterBuild, orderby);
 		if (handler != null) {
 			handler.completed(rs, filterBuild);
 		}
@@ -1454,8 +1636,20 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 	}
 
 	@Override
+	public <T, V extends Serializable> List<V> queryColumnList(final String selectedColumn, final Class<T> clazz, final String column, final Serializable key, final String orderby) {
+		return this.queryColumnList(selectedColumn, clazz, FilterBuild.create(column, key), orderby);
+	}
+
+	@Override
 	public <T, V extends Serializable> List<V> queryColumnList(final String selectedColumn, final Class<T> clazz, final FilterBuild filterBuild) {
 		return (List<V>) this.queryColumnPage(selectedColumn, clazz, null, filterBuild).list(true);
+	}
+
+	@Override
+	public <T, V extends Serializable> List<V> queryColumnList(final String selectedColumn, final Class<T> clazz, final FilterBuild filterBuild, final String orderby) {
+		PageTurn pageTurn = new PageTurn(Integer.MAX_VALUE);
+		pageTurn.setSort(orderby);
+		return (List<V>) this.queryColumnPage(selectedColumn, clazz, pageTurn, filterBuild).list(true);
 	}
 
 	@Override
@@ -1467,8 +1661,24 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 	}
 
 	@Override
+	public <T, V extends Serializable> void queryColumnList(final CompletionHandler<List<V>, Serializable> handler, final String selectedColumn, final Class<T> clazz, final String column, final Serializable key, final String orderby) {
+		final List<V> rs = this.queryColumnList(selectedColumn, clazz, column, key, orderby);
+		if (handler != null) {
+			handler.completed(rs, key);
+		}
+	}
+
+	@Override
 	public <T, V extends Serializable> void queryColumnList(final CompletionHandler<List<V>, FilterBuild> handler, final String selectedColumn, final Class<T> clazz, final FilterBuild filterBuild) {
 		final List<V> rs = this.queryColumnList(selectedColumn, clazz, filterBuild);
+		if (handler != null) {
+			handler.completed(rs, filterBuild);
+		}
+	}
+
+	@Override
+	public <T, V extends Serializable> void queryColumnList(final CompletionHandler<List<V>, FilterBuild> handler, final String selectedColumn, final Class<T> clazz, final FilterBuild filterBuild, final String orderby) {
+		final List<V> rs = this.queryColumnList(selectedColumn, clazz, filterBuild, orderby);
 		if (handler != null) {
 			handler.completed(rs, filterBuild);
 		}
@@ -1506,8 +1716,18 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 	}
 
 	@Override
+	public <T> List<T> queryList(final Class<T> clazz, final String column, final Serializable key, final String orderby) {
+		return this.queryList(clazz, FilterBuild.create(column, key), orderby);
+	}
+
+	@Override
 	public <T> List<T> queryList(final Class<T> clazz, final FilterBuild filterBuild) {
 		return this.queryList(clazz, (SelectColumn) null, filterBuild);
+	}
+
+	@Override
+	public <T> List<T> queryList(final Class<T> clazz, final FilterBuild filterBuild, final String orderby) {
+		return this.queryList(clazz, (SelectColumn) null, filterBuild, orderby);
 	}
 
 	@Override
@@ -1516,8 +1736,23 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 	}
 
 	@Override
+	public <T> List<T> queryList(final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild, final String orderby) {
+		final PageTurn pageTurn = new PageTurn(Integer.MAX_VALUE);
+		pageTurn.setSort(orderby);
+		return this.queryPage(true, false, clazz, selects, pageTurn, filterBuild).list(true);
+	}
+
+	@Override
 	public <T> void queryList(final CompletionHandler<List<T>, Serializable> handler, final Class<T> clazz, final String column, final Serializable key) {
 		final List<T> rs = this.queryList(clazz, column, key);
+		if (handler != null) {
+			handler.completed(rs, key);
+		}
+	}
+
+	@Override
+	public <T> void queryList(final CompletionHandler<List<T>, Serializable> handler, final Class<T> clazz, final String column, final Serializable key, final String orderby) {
+		final List<T> rs = this.queryList(clazz, column, key, orderby);
 		if (handler != null) {
 			handler.completed(rs, key);
 		}
@@ -1532,8 +1767,24 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 	}
 
 	@Override
+	public <T> void queryList(final CompletionHandler<List<T>, FilterBuild> handler, final Class<T> clazz, final FilterBuild filterBuild, final String orderby) {
+		final List<T> rs = this.queryList(clazz, filterBuild, orderby);
+		if (handler != null) {
+			handler.completed(rs, filterBuild);
+		}
+	}
+
+	@Override
 	public <T> void queryList(final CompletionHandler<List<T>, FilterBuild> handler, final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild) {
 		final List<T> rs = this.queryList(clazz, selects, filterBuild);
+		if (handler != null) {
+			handler.completed(rs, filterBuild);
+		}
+	}
+
+	@Override
+	public <T> void queryList(final CompletionHandler<List<T>, FilterBuild> handler, final Class<T> clazz, final SelectColumn selects, final FilterBuild filterBuild, final String orderby) {
+		final List<T> rs = this.queryList(clazz, selects, filterBuild, orderby);
 		if (handler != null) {
 			handler.completed(rs, filterBuild);
 		}

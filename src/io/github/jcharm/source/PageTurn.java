@@ -15,7 +15,7 @@ public final class PageTurn implements Serializable, Cloneable {
 	/** 默认长度. */
 	public static int DEFAULT_LIMIT = 20;
 
-	private int limit = PageTurn.DEFAULT_LIMIT;
+	private int limit = PageTurn.DEFAULT_LIMIT; // 通过设置Integer.MAX实现不分页
 
 	private int offset = 0;
 

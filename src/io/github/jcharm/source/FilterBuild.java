@@ -5,6 +5,10 @@ package io.github.jcharm.source;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -2040,12 +2044,24 @@ public class FilterBuild {
 			final StringBuilder sb = new StringBuilder();
 			if (rangestring) {
 				sb.append('\'').append(range.getMin().toString().replace("'", "\\'")).append('\'');
+			} else if (range.getClass() == FilterRange.FilterLocalDateRange.class) {
+				sb.append('\'').append(((LocalDate) range.getMin()).format(DateTimeFormatter.ISO_LOCAL_DATE).replace("'", "\\'")).append('\'');
+			} else if (range.getClass() == FilterRange.FilterLocalDateTimeRange.class) {
+				sb.append('\'').append(((LocalDateTime) range.getMin()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).replace("'", "\\'")).append('\'');
+			} else if (range.getClass() == FilterRange.FilterLocalTimeRange.class) {
+				sb.append('\'').append(((LocalTime) range.getMin()).format(DateTimeFormatter.ISO_LOCAL_TIME).replace("'", "\\'")).append('\'');
 			} else {
 				sb.append(range.getMin());
 			}
 			sb.append(" AND ");
 			if (rangestring) {
 				sb.append('\'').append(range.getMax().toString().replace("'", "\\'")).append('\'');
+			} else if (range.getClass() == FilterRange.FilterLocalDateRange.class) {
+				sb.append('\'').append(((LocalDate) range.getMax()).format(DateTimeFormatter.ISO_LOCAL_DATE).replace("'", "\\'")).append('\'');
+			} else if (range.getClass() == FilterRange.FilterLocalDateTimeRange.class) {
+				sb.append('\'').append(((LocalDateTime) range.getMax()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).replace("'", "\\'")).append('\'');
+			} else if (range.getClass() == FilterRange.FilterLocalTimeRange.class) {
+				sb.append('\'').append(((LocalTime) range.getMax()).format(DateTimeFormatter.ISO_LOCAL_TIME).replace("'", "\\'")).append('\'');
 			} else {
 				sb.append(range.getMax());
 			}
@@ -2093,6 +2109,18 @@ public class FilterBuild {
 				}
 			}
 			return sb.append(')');
+		} else if (value instanceof LocalDate) {
+			final StringBuilder sb = new StringBuilder();
+			sb.append('\'').append(((LocalDate) value).format(DateTimeFormatter.ISO_LOCAL_DATE).replace("'", "\\'")).append('\'');
+			return sb;
+		} else if (value instanceof LocalDateTime) {
+			final StringBuilder sb = new StringBuilder();
+			sb.append('\'').append(((LocalDateTime) value).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).replace("'", "\\'")).append('\'');
+			return sb;
+		} else if (value instanceof LocalTime) {
+			final StringBuilder sb = new StringBuilder();
+			sb.append('\'').append(((LocalTime) value).format(DateTimeFormatter.ISO_LOCAL_TIME).replace("'", "\\'")).append('\'');
+			return sb;
 		}
 		return String.valueOf(value);
 	}
