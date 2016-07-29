@@ -34,6 +34,7 @@ public class SimpleBean {
 	 *
 	 * @return the name
 	 */
+	@ConvertColumn(ignore = true)
 	public String getName() {
 		return this.name;
 	}

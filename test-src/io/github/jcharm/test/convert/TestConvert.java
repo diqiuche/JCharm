@@ -64,7 +64,7 @@ public class TestConvert {
 	@Test
 	public void simpleJsonColumnConvert() {
 		final JsonConvertFactory jsonConvertFactory = JsonConvertFactory.instance();
-		jsonConvertFactory.registerConvertColumn(SimpleBean.class, true, "name");
+		jsonConvertFactory.registerConvertColumn(SimpleBean.class, false, "name");
 		jsonConvertFactory.reloadParser(SimpleBean.class);
 		final JsonConvert jsonConvert = jsonConvertFactory.getConvert();
 		final String jsonStr = jsonConvert.convertTo(this.simpleBean);
@@ -77,7 +77,7 @@ public class TestConvert {
 	@Test
 	public void simpleJsonToObject() {
 		final JsonConvert convert = JsonConvert.instance();
-		final String jsonStr = convert.convertTo(this.simpleBean);
+		final String jsonStr = "{\"realName\":\"DanielWang\",\"age\":28,\"birthDate\":\"1986-01-06\",\"books\":{\"JAVA编程\":74,\"计算机原理\":32},\"hobbies\":[\"读书\",\"打球\"],\"sex\":true,\"simpleBook\":{\"bookName\":\"十万个为什么\",\"bookPrice\":47.5}}";
 		final SimpleBean sb = convert.convertFrom(SimpleBean.class, jsonStr);
 		System.out.println(sb.toString());
 	}

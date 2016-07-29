@@ -1233,7 +1233,7 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 
 	@Override
 	public <T, K extends Serializable, N extends Number> Map<K, N> getMapResult(final Class<T> entityClass, final String keyColumn, final FilterFunction filterFunction, final String funcColumn, final FilterBuild filterBuild, final String orderby) {
-		PageTurn pageTurn = new PageTurn(Integer.MAX_VALUE);
+		final PageTurn pageTurn = new PageTurn(Integer.MAX_VALUE);
 		pageTurn.setSort(orderby);
 		final Connection conn = this.createReadSQLConnection();
 		try {
@@ -1647,7 +1647,7 @@ public final class DataDefaultSource implements DataSource, Function<Class, Enti
 
 	@Override
 	public <T, V extends Serializable> List<V> queryColumnList(final String selectedColumn, final Class<T> clazz, final FilterBuild filterBuild, final String orderby) {
-		PageTurn pageTurn = new PageTurn(Integer.MAX_VALUE);
+		final PageTurn pageTurn = new PageTurn(Integer.MAX_VALUE);
 		pageTurn.setSort(orderby);
 		return (List<V>) this.queryColumnPage(selectedColumn, clazz, pageTurn, filterBuild).list(true);
 	}

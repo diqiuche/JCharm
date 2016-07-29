@@ -89,8 +89,8 @@ public class JDBCTest {
 
 	@Test
 	public void queryPage() {
-		PageTurn pageTurn = new PageTurn(5, 10, "loginTime DESC");
-		PageData<LoginLogTestEntity> pageData = this.dataSource.queryPage(LoginLogTestEntity.class, pageTurn, null);
+		final PageTurn pageTurn = new PageTurn(5, 10, "loginTime DESC");
+		final PageData<LoginLogTestEntity> pageData = this.dataSource.queryPage(LoginLogTestEntity.class, pageTurn, null);
 		System.out.println(pageData);
 	}
 

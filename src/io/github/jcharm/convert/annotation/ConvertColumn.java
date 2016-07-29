@@ -13,11 +13,11 @@ import java.lang.annotation.Target;
 import io.github.jcharm.convert.ConvertType;
 
 /**
- * 定义在字段上的注解, 实现其简单配置.
+ * 定义在字段、getter、setter上的注解, 实现其简单配置.
  */
 @Inherited
 @Documented
-@Target(ElementType.FIELD)
+@Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ConvertColumn {
 

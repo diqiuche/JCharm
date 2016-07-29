@@ -95,6 +95,11 @@ public final class ObjectDeSerializeParser<R extends DeserializeReader, T> imple
 				final Method setMethod = this.getSetMethod(clazz, field);
 				if (setMethod == null) {
 					continue;
+				} else {
+					convertColumnEntry = convertFactory.loadConvertColumnEntry(setMethod);
+					if ((convertColumnEntry != null) && convertColumnEntry.isIgnore()) {
+						continue;
+					}
 				}
 				final Type t = this.createClassType(field.getGenericType(), this.type);
 				final FieldAttribute fieldAttribute = this.createFieldAttribute(convertFactory, clazz, field, setMethod);

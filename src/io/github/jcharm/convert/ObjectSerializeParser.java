@@ -80,6 +80,11 @@ public final class ObjectSerializeParser<W extends SerializeWriter, T> implement
 				final Method getMethod = this.getGetMethod(clazz, field);
 				if (getMethod == null) {
 					continue;
+				} else {
+					convertColumnEntry = convertFactory.loadConvertColumnEntry(getMethod);
+					if ((convertColumnEntry != null) && convertColumnEntry.isIgnore()) {
+						continue;
+					}
 				}
 				final Type t = this.createClassType(field.getGenericType(), this.type);
 				final FieldAttribute fieldAttribute = this.createFieldAttribute(convertFactory, clazz, field, getMethod);

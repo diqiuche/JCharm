@@ -3,6 +3,7 @@
  */
 package io.github.jcharm.convert;
 
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -70,6 +71,7 @@ public abstract class ConvertFactory<R extends DeserializeReader, W extends Seri
 
 	private final ConvertFactory parentConvertFactory;
 
+	/** The convert. */
 	protected Convert<R, W> convert;
 
 	private final SerializeParser anySerializeParser = new AnySerializeParser(this);
@@ -80,7 +82,7 @@ public abstract class ConvertFactory<R extends DeserializeReader, W extends Seri
 
 	private final ConcurrentHashMap<Class, ConstructCreator> constructCreatorMap = new ConcurrentHashMap();
 
-	private final ConcurrentHashMap<Field, ConvertColumnEntry> convertColumnEntryMap = new ConcurrentHashMap();
+	private final ConcurrentHashMap<AccessibleObject, ConvertColumnEntry> convertColumnEntryMap = new ConcurrentHashMap();
 
 	/**
 	 * 获取双向序列化工厂的父工厂类.
@@ -222,6 +224,12 @@ public abstract class ConvertFactory<R extends DeserializeReader, W extends Seri
 			final Method setMethod = clazz.getMethod("set" + col2, field.getType());
 			if ((getMethod != null) || (setMethod != null)) {
 				this.convertColumnEntryMap.put(field, convertColumnEntry);
+				if (getMethod != null) {
+					this.convertColumnEntryMap.put(getMethod, convertColumnEntry);
+				}
+				if (setMethod != null) {
+					this.convertColumnEntryMap.put(setMethod, convertColumnEntry);
+				}
 			}
 		} catch (final Exception e) {
 			return;
@@ -237,7 +245,17 @@ public abstract class ConvertFactory<R extends DeserializeReader, W extends Seri
 	 */
 	public void registerConvertColumn(final Class clazz, final boolean ignore, final String... columns) {
 		for (final String column : columns) {
-			this.registerConvertColumn(clazz, column, new ConvertColumnEntry(column, ignore));
+			try {
+				final Field field = clazz.getDeclaredField(column);
+				final ConvertColumnEntry convertColumnEntry = this.loadConvertColumnEntry(field);
+				if (convertColumnEntry != null) {
+					convertColumnEntry.setIgnore(ignore);
+					this.registerConvertColumn(clazz, column, convertColumnEntry);
+				} else {
+					this.registerConvertColumn(clazz, column, new ConvertColumnEntry("", ignore));
+				}
+			} catch (final Exception e) {
+			}
 		}
 	}
 
@@ -249,7 +267,17 @@ public abstract class ConvertFactory<R extends DeserializeReader, W extends Seri
 	 * @param columnAlias 字段别名
 	 */
 	public void registerConvertColumn(final Class clazz, final String column, final String columnAlias) {
-		this.registerConvertColumn(clazz, column, new ConvertColumnEntry(columnAlias));
+		try {
+			final Field field = clazz.getDeclaredField(column);
+			final ConvertColumnEntry convertColumnEntry = this.loadConvertColumnEntry(field);
+			if (convertColumnEntry != null) {
+				convertColumnEntry.setName(columnAlias);
+				this.registerConvertColumn(clazz, column, convertColumnEntry);
+			} else {
+				this.registerConvertColumn(clazz, column, new ConvertColumnEntry(columnAlias));
+			}
+		} catch (final Exception e) {
+		}
 	}
 
 	/**
@@ -477,26 +505,26 @@ public abstract class ConvertFactory<R extends DeserializeReader, W extends Seri
 	}
 
 	/**
-	 * 根据Field加载其对应ConvertColumn注解的实体对象.
+	 * 根据AccessibleObject加载其对应ConvertColumn注解的实体对象.
 	 *
-	 * @param field Field
+	 * @param element AccessibleObject
 	 * @return ConvertColumnEntry
 	 */
-	public ConvertColumnEntry loadConvertColumnEntry(final Field field) {
-		if (field == null) {
+	public ConvertColumnEntry loadConvertColumnEntry(final AccessibleObject element) {
+		if (element == null) {
 			return null;
 		}
-		final ConvertColumnEntry convertColumnEntry = this.convertColumnEntryMap.get(field);
+		final ConvertColumnEntry convertColumnEntry = this.convertColumnEntryMap.get(element);
 		if (convertColumnEntry != null) {
 			return convertColumnEntry;
 		}
 		final ConvertType ct = this.getConvertType();
-		final ConvertColumn[] ccs = field.getAnnotationsByType(ConvertColumn.class);
+		final ConvertColumn[] ccs = element.getAnnotationsByType(ConvertColumn.class);
 		if ((ccs != null) && (ccs.length > 0)) {
 			final ConvertColumn cc = ccs[0];
 			if (cc.type().contains(ct)) {
 				final ConvertColumnEntry entry = new ConvertColumnEntry(cc);
-				this.convertColumnEntryMap.put(field, entry);
+				this.convertColumnEntryMap.put(element, entry);
 				return entry;
 			}
 		}
