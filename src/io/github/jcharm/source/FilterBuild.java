@@ -84,7 +84,7 @@ public class FilterBuild {
 				final Class comp = val.getClass().getComponentType();
 				if (FilterRange.class.isAssignableFrom(comp)) {
 					exp = FilterExpress.BETWEEN;
-				} else if (comp.isArray() || Collection.class.isAssignableFrom(comp)) {
+				} else {
 					exp = FilterExpress.IN;
 				}
 			}
