@@ -166,8 +166,8 @@ public abstract class Server<K extends Serializable, C extends Context, R extend
 		this.serverChannel.bind(this.address, this.backlog);
 		this.serverChannel.accept();
 		final String threadName = "[" + Thread.currentThread().getName() + "] ";
-		this.logger.info(threadName + this.getClass().getSimpleName() + ("TCP".equalsIgnoreCase(this.protocol) ? "" : ("." + this.protocol)) + " listen: " + this.address + ", threads: " + this.threads + ", bufferCapacity: " + this.bufferCapacity + ", bufferPoolSize: " + this.bufferPoolSize + ", responsePoolSize: " + this.responsePoolSize
-				+ ", started in " + (System.currentTimeMillis() - this.context.getServerStartTime()) + " ms");
+		this.logger.info(threadName + this.getClass().getSimpleName() + ("TCP".equalsIgnoreCase(this.protocol) ? "" : ("." + this.protocol)) + " listen: " + this.address + ", threads: " + this.threads + ", bufferCapacity: " + this.bufferCapacity + ", bufferPoolSize: " + this.bufferPoolSize
+				+ ", responsePoolSize: " + this.responsePoolSize + ", started in " + (System.currentTimeMillis() - this.context.getServerStartTime()) + " ms");
 	}
 
 	protected abstract C createContext();
